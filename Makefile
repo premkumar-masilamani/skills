@@ -1,9 +1,6 @@
-.PHONY: default copy-skills list-skills
+.PHONY: default install-skills
 
-default: copy-skills
+default: install-skills
 
-copy-skills:
-	bash link-skills.sh
-
-list-skills:
-	bash list-skills.sh
+install-skills:
+	bash install-skills.sh
