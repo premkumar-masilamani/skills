@@ -5,6 +5,7 @@ REPO="$(cd "$(dirname "$0")" && pwd)"
 AGENTS_DEST="$HOME/.agents/skills"
 CLAUDE_DEST="$HOME/.claude/skills"
 GEMINI_DEST="$HOME/.gemini/config/skills"
+
 mkdir -p "$CLAUDE_DEST"
 mkdir -p "$GEMINI_DEST"
 
@@ -22,4 +23,5 @@ find "$REPO" -name SKILL.md | while read -r skill_md; do
   cp -R "$src" "$GEMINI_DEST/$name"
 
   echo "Installed $name -> Agents, Claude & Gemini"
+
 done
