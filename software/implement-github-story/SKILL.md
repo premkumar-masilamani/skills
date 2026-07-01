@@ -1,7 +1,7 @@
 ---
 name: implement-github-story
 description: >-
-  Fetches open issues from GitHub, guides the user to select one, drafts an implementation plan using a research subagent, behaves like a goal, creates a git branch, implements the feature with unit tests (waiting for user approval for code changes), formats, lints, runs a self-review loop to refine the code, pushes, opens a Pull Request, and presents a walkthrough.
+  Fetches open issues from GitHub, guides the user to select one, drafts an implementation plan using a research subagent, behaves like a goal, creates a git branch, implements the feature with unit tests (waiting for user approval for code changes), formats, lints, runs a self-review loop to refine the code, pushes, opens a Pull Request, presents a walkthrough, gathers reusable learnings from the implementation, and persists approved learnings to the relevant AGENTS.md files (submodule-specific for multimodule projects).
 ---
 
 # Implement Story Skill
@@ -61,6 +61,15 @@ Once the user approves the plan, execute the following loop for the code changes
   ```
 - Review the PR (or read any comments from reviewers/CI). If there are comments or failing CI checks, fix them locally, run tests again, and push the updates.
 
-### 5. Final Walkthrough
+### 5. Final Walkthrough & Gathering Learnings
 - Create a `walkthrough.md` artifact summarizing the changes made, the tests executed, and providing a direct link to the created PR.
-- Present the walkthrough to the user and conclude the task.
+- Analyze the entire conversation history, code implementation, and run details. Gather all reusable learnings, engineering guidelines, project constraints, library quirks, or database conventions discovered.
+- Present the walkthrough along with the list of gathered learnings to the user for review and approval.
+
+### 6. Persisting Approved Learnings
+- Once the user approves the gathered learnings:
+  - Check if the project is a multimodule/multiproject codebase (i.e. contains multiple `AGENTS.md` files in different directories like `backend/`, `frontend/`, `database/`).
+  - If it is a multimodule project, identify which directories/modules were modified in this feature (e.g. changes in `backend/` or `frontend/`).
+  - Update only the relevant submodule-specific `AGENTS.md` file (e.g., `backend/AGENTS.md`, `frontend/AGENTS.md`, `database/AGENTS.md`) with the new learnings.
+  - If the changes are general, cross-cutting, or no submodule-specific `AGENTS.md` exists, update the root `AGENTS.md` file.
+  - Format the new learnings cleanly and append them, matching the style and structure of the existing entries in the target `AGENTS.md` file.
