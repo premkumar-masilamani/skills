@@ -1,0 +1,29 @@
+{
+  "skill_name": "implement-github-story",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You have been assigned GitHub issue #42 'Implement feature: user profile avatar upload'.",
+      "expected_output": "A workflow log proving the goal-oriented workflow was followed.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Mentions Goal Mindset",
+          "description": "The log explicitly states that it is acting as a goal."
+        },
+        {
+          "name": "Spawns Research Subagent",
+          "description": "The log explicitly states it spawned or delegated to a research subagent."
+        },
+        {
+          "name": "Presents Implementation Plan",
+          "description": "The log shows it presented an implementation plan and received (mocked) user approval."
+        },
+        {
+          "name": "Runs Lint and Tests",
+          "description": "The log explicitly states it ran format, lint, and tests."
+        }
+      ]
+    }
+  ]
+}

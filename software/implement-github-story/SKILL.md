@@ -1,0 +1,65 @@
+---
+name: implement-github-story
+description: >-
+  Fetches open issues from GitHub, guides the user to select one, drafts an implementation plan using a research subagent, behaves like a goal, creates a git branch, implements the feature with unit tests (waiting for user approval for code changes), formats, lints, runs a self-review loop to refine the code, pushes, opens a Pull Request, and presents a walkthrough.
+---
+
+# Implement Story Skill
+
+This skill guides the agent in an end-to-end, goal-oriented feature implementation workflow. You must act relentlessly until all code development is complete, the PR is merged or reviewed, and the walkthrough is presented.
+
+## Execution Workflow
+
+### 1. Goal Orientation & Setup
+- Inform the user that you are treating this task as a goal and will work continuously until the Pull Request is complete and reviewed. Suggest they use the `/goal` command if they haven't already.
+- Check if the GitHub CLI (`gh`) is installed and authenticated.
+- Fetch open issues from the repository: `gh issue list --limit 10`
+- Present the list to the user and ask them to select the issue they want to implement.
+- **Fallback:** If no issues exist, invoke the `write-github-story` skill to gather information and create one.
+
+### 2. Research & Implementation Plan
+- Read the full issue description: `gh issue view <issue-id>`
+- **Delegate Research:** Spawn a `research` subagent to explore the codebase and identify exactly which files need to be created or modified, and understand the current architecture.
+- Using the research subagent's findings, create a detailed **Implementation Plan** artifact. The plan must include:
+  - Proposed code changes (frontend, backend, database schema, data migrations).
+  - Test strategy (files and scenarios to cover).
+- **CRITICAL STEP:** Present the plan to the user and ask for their confirmation or comments. 
+- **Do not proceed** to coding until the user approves the plan. If the user provides comments, revise the plan and check with them again before proceeding.
+
+### 3. Implementation & Validation Loop
+Once the user approves the plan, execute the following loop for the code changes:
+
+#### Step A: Branch Creation
+- Ensure you are on a fresh branch:
+  ```bash
+  git checkout main
+  git pull
+  git checkout -b feature/issue-<id>-<short-description>
+  ```
+
+#### Step B: Implement & Write Unit Tests
+- Implement the requested feature changes based strictly on the approved plan.
+- Write corresponding unit tests to verify the implementation.
+
+#### Step C: Format, Lint, and Test
+- Run the repository's formatter and linter (e.g., `npm run format`, `npm run lint`, `make lint`) and fix any issues.
+- Run the test suite (e.g., `npm test`, `make test`) and ensure all tests pass successfully.
+
+#### Step D: Self-Review Loop
+- Review the implemented code (e.g., via `git diff`).
+- Formulate specific code comments/review notes addressing edge cases, error handling, security, and patterns.
+- Modify the code to address all review comments.
+- Re-run format, lint, and tests to verify no regressions.
+- Repeat until there are no remaining code comments or issues.
+
+### 4. Pull Request & Review
+- Push the local branch: `git push -u origin <branch-name>`
+- Create a Pull Request (PR) linking to the issue:
+  ```bash
+  gh pr create --title "<Issue Title>" --body "Closes #<Issue ID>"
+  ```
+- Review the PR (or read any comments from reviewers/CI). If there are comments or failing CI checks, fix them locally, run tests again, and push the updates.
+
+### 5. Final Walkthrough
+- Create a `walkthrough.md` artifact summarizing the changes made, the tests executed, and providing a direct link to the created PR.
+- Present the walkthrough to the user and conclude the task.

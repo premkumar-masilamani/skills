@@ -1,0 +1,21 @@
+{
+  "skill_name": "ocr-and-merge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Please transcribe the handwritten notes in ~/Downloads/Notes and merge them.",
+      "expected_output": "The agent sequentially transcribes the images and creates Notes.md.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Sequential Transcription",
+          "description": "The agent processes the images sequentially rather than in parallel."
+        },
+        {
+          "name": "Merges to Markdown",
+          "description": "The agent merges the transcriptions into a markdown file."
+        }
+      ]
+    }
+  ]
+}
