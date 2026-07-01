@@ -6,6 +6,7 @@ AGENTS_DEST="$HOME/.agents/skills"
 CLAUDE_DEST="$HOME/.claude/skills"
 GEMINI_DEST="$HOME/.gemini/config/skills"
 
+mkdir -p "$AGENTS_DEST"
 mkdir -p "$CLAUDE_DEST"
 mkdir -p "$GEMINI_DEST"
 
@@ -22,6 +23,6 @@ find "$REPO" -name SKILL.md | while read -r skill_md; do
   # Install to Antigravity
   cp -R "$src" "$GEMINI_DEST/$name"
 
-  echo "Installed $name -> Agents, Claude & Gemini"
+  echo "Installed $name -> Agents, Claude & Gemini folder"
 
 done
