@@ -1,7 +1,7 @@
 ---
 name: ocr-and-merge
 description: >-
-  Transcribes handwritten text from images in a specified folder and merges the transcriptions into a single markdown file.
+  Transcribes handwritten text from images in a specified folder and merges them into a markdown file. Use this skill whenever the user asks to transcribe, digitize, convert to text, or OCR handwritten notes, photos, or documents.
 ---
 
 # OCR and Merge Skill

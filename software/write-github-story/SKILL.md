@@ -1,6 +1,6 @@
 ---
-name: write-story
-description: Interview the user to refine a feature idea, probe all technical layers (frontend, backend, database schema, data migrations), review the codebase, and create a fully-scoped GitHub issue specification.
+name: write-github-story
+description: Interview the user to refine a feature idea, probe technical layers, review the codebase, and create a GitHub issue. Make sure to use this skill whenever the user mentions writing a story, creating a GitHub issue, planning a feature, writing a spec, or taking a feature from idea to ticket.
 ---
 
 # Write Story Skill
@@ -26,10 +26,32 @@ This skill guides the agent in interviewing the user about a feature idea, analy
 
 ### 3. GitHub Issue Creation
 - Once the specification is scoped and agreed upon, compile the spec into a clean markdown document.
-- **Do not** write a file-by-file implementation plan. Instead, focus on high-level functional and technical scoping:
-  - **Overview / User Story:** Clean summary of what is being built and why.
-  - **Acceptance Criteria:** Clear, testable bullet points describing the target behavior.
-  - **Technical Specification:** Functional blueprints for Frontend, Backend, Database, Migration, and Security.
+- **Do not** write a file-by-file implementation plan. Instead, focus on high-level functional and technical scoping.
+- ALWAYS use this exact template for the specification:
+```markdown
+# [Feature Name]
+
+## Overview / User Story
+[Clean summary of what is being built and why]
+
+## Acceptance Criteria
+- [ ] [Clear, testable bullet point describing the target behavior]
+- [ ] [Another testable criterion]
+
+## Technical Specification
+### Frontend
+[UI/UX, components, state changes]
+
+### Backend
+[API endpoints, payloads, logic]
+
+### Database & Migrations
+[Schema changes, data seeding, backfills]
+
+### Security
+[Permissions, auth rules]
+```
+
 - Use the GitHub CLI (`gh`) to create the issue in the current repository:
   ```bash
   gh issue create --title "[Feature] <Short Description>" --body-file <spec-file-path>

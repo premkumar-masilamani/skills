@@ -1,0 +1,37 @@
+{
+  "skill_name": "write-github-story",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add a forgot password flow.",
+      "expected_output": "A GitHub issue markdown file specifying the forgot password feature.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Follows New Template",
+          "description": "The output contains the exact sections from the new template: Overview, Acceptance Criteria, and Technical Specification (Frontend, Backend, Database, Security)."
+        },
+        {
+          "name": "Details Token Expiration",
+          "description": "The security or backend section mentions token expiration for the reset link."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Let's build a feature to export the analysis results as CSV on the dashboard.",
+      "expected_output": "A GitHub issue markdown file specifying the CSV export feature.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Follows New Template",
+          "description": "The output contains the exact sections from the new template: Overview, Acceptance Criteria, and Technical Specification (Frontend, Backend, Database, Security)."
+        },
+        {
+          "name": "Details Rate Limiting or Performance",
+          "description": "The backend or technical section mentions rate limiting or performance considerations for the CSV export."
+        }
+      ]
+    }
+  ]
+}
