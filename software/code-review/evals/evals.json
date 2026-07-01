@@ -1,0 +1,25 @@
+{
+  "skill_name": "code-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the authentication middleware component.",
+      "expected_output": "A code review using the specified markdown table for major issues and bullet points for minor issues.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Mentions Context Gathering",
+          "description": "The output explicitly mentions reading or fetching the file for context."
+        },
+        {
+          "name": "Uses Major Issue Template",
+          "description": "The output uses the exact markdown table template with all 7 fields for a major security issue."
+        },
+        {
+          "name": "Uses Minor Issue Format",
+          "description": "The output uses the simplified bulleted list for a minor maintainability issue."
+        }
+      ]
+    }
+  ]
+}
