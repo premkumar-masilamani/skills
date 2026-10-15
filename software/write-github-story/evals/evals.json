@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I want to add a forgot password flow.",
-      "expected_output": "A GitHub issue markdown file specifying the forgot password feature.",
+      "expected_output": "A GitHub issue markdown file specifying the forgot password feature following modern AI specification standards.",
       "files": [],
       "assertions": [
         {
@@ -12,15 +12,23 @@
           "description": "The output contains the exact sections from the new template: Overview, Acceptance Criteria, and Technical Specification (Frontend, Backend, Database, Security)."
         },
         {
+          "name": "Defines Goals and Non-Goals",
+          "description": "The output explicitly specifies in-scope Goals and out-of-scope Non-Goals."
+        },
+        {
           "name": "Details Token Expiration",
           "description": "The security or backend section mentions token expiration for the reset link."
+        },
+        {
+          "name": "Verifiable Acceptance Criteria",
+          "description": "The acceptance criteria include testable Given-When-Then scenarios covering happy paths and negative/edge cases."
         }
       ]
     },
     {
       "id": 2,
       "prompt": "Let's build a feature to export the analysis results as CSV on the dashboard.",
-      "expected_output": "A GitHub issue markdown file specifying the CSV export feature.",
+      "expected_output": "A GitHub issue markdown file specifying the CSV export feature following modern AI specification standards.",
       "files": [],
       "assertions": [
         {
@@ -28,8 +36,16 @@
           "description": "The output contains the exact sections from the new template: Overview, Acceptance Criteria, and Technical Specification (Frontend, Backend, Database, Security)."
         },
         {
+          "name": "Defines Goals and Non-Goals",
+          "description": "The output explicitly specifies in-scope Goals and out-of-scope Non-Goals."
+        },
+        {
           "name": "Details Rate Limiting or Performance",
           "description": "The backend or technical section mentions rate limiting or performance considerations for the CSV export."
+        },
+        {
+          "name": "UI State Machine",
+          "description": "The specification covers UI states such as loading, error, empty, or progress indicator for the export."
         }
       ]
     }
