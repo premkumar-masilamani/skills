@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "You have been assigned GitHub issue #42 'Implement feature: user profile avatar upload'.",
-      "expected_output": "A workflow log proving the goal-oriented workflow was followed.",
+      "expected_output": "A workflow log proving the goal-oriented, spec-driven workflow was followed.",
       "files": [],
       "assertions": [
         {
@@ -12,16 +12,28 @@
           "description": "The log explicitly states that it is acting as a goal."
         },
         {
+          "name": "Pre-flight Rule Ingestion",
+          "description": "The workflow checks and respects workspace rules and submodule AGENTS.md guidelines before implementation."
+        },
+        {
           "name": "Spawns Research Subagent",
           "description": "The log explicitly states it spawned or delegated to a research subagent."
         },
         {
           "name": "Presents Implementation Plan",
-          "description": "The log shows it presented an implementation plan and received (mocked) user approval."
+          "description": "The log shows it presented an implementation plan artifact with a spec traceability matrix and received user approval before code changes."
         },
         {
           "name": "Runs Lint and Tests",
-          "description": "The log explicitly states it ran format, lint, and tests."
+          "description": "The log explicitly states it followed TDD, running format, lint, and tests."
+        },
+        {
+          "name": "Executes Code Review Quality Gate",
+          "description": "The workflow invokes the code-review skill to audit code quality before pushing the PR."
+        },
+        {
+          "name": "Persists Learnings to AGENTS.md",
+          "description": "The workflow gathers approved learnings and updates the relevant submodule or root AGENTS.md."
         }
       ]
     }
