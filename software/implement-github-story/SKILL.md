@@ -1,12 +1,15 @@
 ---
 name: implement-github-story
 description: >-
-  Fetches open issues from GitHub, guides the user to select one, drafts an implementation plan using a research subagent, behaves like a goal, creates a git branch, implements the feature with unit tests (waiting for user approval for code changes), formats, lints, runs a self-review loop to refine the code, pushes, opens a Pull Request, presents a walkthrough, gathers reusable learnings from the implementation, and persists approved learnings to the relevant AGENTS.md files (submodule-specific for multimodule projects).
+  Fully autonomous, end-to-end feature implementation goal driven by formal AI specifications (Spec-Driven Development / SDD). Requires a mandatory issue/story number. Autonomously ingests workspace rules, deconstructs specifications, plans, implements via TDD red-green-refactor, self-heals failing tests, audits code quality, pushes a Pull Request, and automatically persists verified learnings to AGENTS.md without human intervention.
 ---
 
-# Implement Story Skill
+# Implement Story Skill (Autonomous Goal Edition)
 
-This skill guides the agent in an end-to-end, goal-oriented feature implementation workflow driven by formal AI specifications (Spec-Driven Development / SDD). You must act relentlessly until all code development is complete, unit/integration tests pass, the PR is submitted and reviewed, and learnings are persisted.
+This skill executes an **end-to-end, fully autonomous feature implementation goal** driven by formal AI specifications (Spec-Driven Development / SDD). Once started with a mandatory issue number, you MUST operate autonomously until all code development is complete, unit and integration tests pass 100% green, static analysis passes, senior code review audits pass, the Pull Request is submitted, and architectural learnings are persisted to `AGENTS.md`.
+
+> [!IMPORTANT]
+> **No Blocking Approval Gates:** Do not pause or wait for user confirmation between steps (such as plan approvals or learning approvals). Self-validate against the specification and drive the implementation to completion. For interactive pair programming with manual gates, direct the user to use `implement-github-story-interactive`.
 
 ---
 
@@ -14,110 +17,134 @@ This skill guides the agent in an end-to-end, goal-oriented feature implementati
 
 ```mermaid
 flowchart TD
-    A[Issue Selection / Ingestion] --> B[Step 1: Workspace Rule Ingestion]
+    A[Mandatory Story # Validation] --> B[Step 1: Workspace Rule Ingestion]
     B --> C[Step 2: Spec Deconstruction & Research Subagent]
-    C --> D[Step 3: Implementation Plan Artifact]
-    D --> E{User Approved Plan?}
-    E -- Needs Changes --> D
-    E -- Approved --> F[Step 4: Branch & TDD Red-Green-Refactor]
-    F --> G[Step 5: Quality Gate & Code Review Loop]
-    G --> H[Step 6: Atomic Commits & Pull Request]
-    H --> I[Step 7: Walkthrough & Persist Learnings]
+    C --> D[Step 3: Generate Plan Artifact & Self-Validation]
+    D --> E[Step 4: Branch Creation & Spec-Driven TDD Loop]
+    E --> F[Step 5: Autonomous Self-Healing Quality Gate]
+    F --> G[Step 6: Code Review Audit & Auto-Remediation]
+    G --> H[Step 7: Atomic Commits & Pull Request Creation]
+    H --> I[Step 8: Retrospective & Autonomous AGENTS.md Update]
+    I --> J[Final Goal Completion Report]
 ```
 
-### 1. Goal Orientation & Workspace Rule Ingestion
-- Inform the user that you are treating this task as a goal and will work continuously until the Pull Request is complete and reviewed. Suggest they use the `/goal` command if they haven't already.
-- **Pre-flight Rule Check:** Before doing anything, inspect the workspace root `AGENTS.md` and any submodule `AGENTS.md` (e.g. `backend/.agents/AGENTS.md`, `frontend/.agents/AGENTS.md`, `database/.agents/AGENTS.md`). Strictly internalize and obey project rules (e.g., test/lint commands, branch conventions, and prohibitions such as never applying database migrations manually or committing secrets).
-- Verify the GitHub CLI (`gh`) is installed and authenticated.
-- **Issue Ingestion:**
-  - If the user specified an issue number (e.g. `/implement-github-story #42`), fetch that issue directly.
-  - Otherwise, fetch open issues: `gh issue list --limit 10`.
-  - Present the list to the user and ask them to select the issue to implement.
-  - **Fallback:** If no open issues exist, invoke the `write-github-story` skill to gather requirements and create one first.
+---
 
-### 2. Spec Deconstruction & Research Subagent Delegation
-- Read the full issue description: `gh issue view <issue-id>`.
+### Step 0: Mandatory Story Number Validation
+- **Requirement:** A GitHub issue number is **MANDATORY**.
+- Extract the issue ID from the user invocation (e.g., `/implement-github-story #42`, `implement-github-story 42`, or `implement issue 42`).
+- **Strict Guardrail:** If no issue number was provided, **ABORT IMMEDIATELY** and respond with:
+  > `Error: A GitHub issue number is mandatory for autonomous implementation.`  
+  > `Usage: /implement-github-story #<issue-id>`  
+  > `Tip: If you want to browse open issues interactively and approve each phase, use /implement-github-story-interactive.`
+- Do NOT list open issues or pause to ask what to do.
+
+---
+
+### Step 1: Workspace Rule Ingestion & Environment Verification
+- **Pre-flight Rule Ingestion:** Before modifying any files, read the workspace root `AGENTS.md` and any submodule guidelines (e.g. `backend/.agents/AGENTS.md`, `frontend/.agents/AGENTS.md`, `database/.agents/AGENTS.md`). Strictly internalize and obey all project rules:
+  - Required build, test, and lint commands.
+  - Architectural layering and directory conventions.
+  - Hard prohibitions (e.g., never applying database migrations manually, never committing secrets or `.env` files).
+- Verify the GitHub CLI (`gh`) and Git are authenticated and healthy:
+  ```bash
+  gh auth status
+  git status
+  ```
+
+---
+
+### Step 2: Spec Deconstruction & Research Subagent Delegation
+- Fetch the complete issue specification:
+  ```bash
+  gh issue view <issue-id>
+  ```
 - **Deconstruct the AI Specification:**
-  - Extract the in-scope **Goals** and explicitly respect the **Non-Goals (Out of Scope)** to prevent scope creep.
-  - Extract the **Acceptance Criteria** and construct a **Traceability Matrix** (mapping each criterion directly to an anticipated test scenario).
-  - Extract API contracts, database schema requirements, and non-functional requirements (NFRs).
-- **Delegate Research to a Subagent:**
-  - Launch a `research` subagent to thoroughly explore the codebase without cluttering the parent context.
-  - The subagent must identify:
-    - Target files to create or modify across frontend, backend, and database modules.
-    - Existing architectural patterns, shared services, and UI components to reuse.
-    - Test harness patterns, mock factories, fixtures, and existing test utilities.
-    - Submodule-specific guidelines or constraints from local `.agents/AGENTS.md` files.
+  - In-scope **Goals** vs. explicit **Non-Goals (Out of Scope)** to prevent scope creep.
+  - **Acceptance Criteria:** Construct an internal **Traceability Matrix** mapping every single Given/When/Then criterion directly to an anticipated test scenario.
+  - Contract definitions: schemas, endpoints, types, and error conditions.
+- **Delegate Codebase Exploration to a Subagent:**
+  - Launch a `research` subagent to explore the codebase without cluttering the parent context.
+  - The subagent identifies:
+    - Target files to create or modify across modules.
+    - Existing architectural patterns, shared services, and components to reuse.
+    - Test harness patterns, fixtures, mock factories, and existing test utilities.
+    - Submodule constraints from local `.agents/AGENTS.md` files.
 
-### 3. Interactive Implementation Plan Artifact
-Using the research subagent's findings, generate a detailed **Implementation Plan** artifact (`write_to_file` in the artifact directory with `ArtifactMetadata` and `RequestFeedback: true`).
+---
 
-The plan **MUST** contain:
-1. **Summary & Scope:** Brief overview referencing the issue, goals, and explicit non-goals.
-2. **Spec Traceability Matrix:**
-   | Acceptance Criterion | Implementation Task | Test File & Scenario |
-   | --- | --- | --- |
-   | [Given X, When Y, Then Z] | [Target logic / endpoint] | [Unit/Integration Test] |
-3. **Phased Roadmap:**
-   - **Phase 1: Test Harness & Contract Mocks:** Define test fixtures, mock data, and initial failing tests.
-   - **Phase 2: Data Models & Migrations:** Schema definitions, entities, or migration scripts *(Note: Obey repo rules—e.g. write migration scripts only, do NOT apply them if forbidden!)*.
-   - **Phase 3: Core Business Logic & APIs:** Services, controllers, validation, and error handling.
-   - **Phase 4: Frontend UI & State Machine:** Components, state management, idle/loading/empty/error states.
-   - **Phase 5: Verification & Quality Gates:** Test execution, linting, and self-review audit.
-4. **File Breakdown:** Explicit list of files to create, modify, or delete.
+### Step 3: Plan Generation & Autonomous Self-Validation
+- Write a detailed **Implementation Plan** artifact to the conversation artifact directory (`write_file` with `ArtifactMetadata`):
+  - **Spec Traceability Matrix:**
+    | Acceptance Criterion | Target Implementation | Test File & Scenario |
+    | :--- | :--- | :--- |
+    | [Given X, When Y, Then Z] | [Target logic / handler] | [Unit/Integration Test] |
+  - **Phased Technical Roadmap:**
+    1. Test harness & contract mocks.
+    2. Data models & schemas (obeying migration restrictions).
+    3. Core business logic & API services.
+    4. Frontend UI state machine (idle, loading, empty, success, error) if applicable.
+    5. Quality gates & code review.
+  - **File Breakdown:** Explicit list of files to create, edit, or delete.
+- **Autonomous Validation:** Perform an automated sanity check against the issue's Acceptance Criteria and `AGENTS.md` constraints.
+- **Proceed Immediately:** Do NOT wait for human approval. Proceed directly to Step 4.
 
-> [!CRITICAL]
-> **Approval Gate:** Present the plan artifact to the user. **Do not write any implementation code** until the user explicitly approves the plan. If the user provides feedback, revise the plan artifact and seek confirmation again.
+---
 
-### 4. Implementation & Spec-Driven TDD Loop
-Once the user approves the plan:
-
-#### Step A: Branch Creation
-- Ensure you are working from a clean, updated base branch:
+### Step 4: Branch Creation & Spec-Driven TDD Loop
+- **Branch Creation:** Ensure a clean base and create the feature branch:
   ```bash
   git checkout main
   git pull
   git checkout -b feature/issue-<id>-<short-description>
   ```
-
-#### Step B: Test-Driven Red-Green-Refactor
-- Follow a contract-driven TDD loop:
-  1. **Red:** Write failing unit/integration tests directly derived from the Acceptance Criteria test vectors and edge cases.
-  2. **Green:** Implement minimal, clean code to satisfy the tests and API contracts.
+- **Test-Driven Red-Green-Refactor Loop:**
+  1. **Red:** Write failing unit/integration tests directly derived from the Traceability Matrix (happy path, edge cases, error conditions).
+  2. **Green:** Implement the minimal, clean code required to satisfy the tests.
   3. **Refactor:** Clean up code, remove duplication, and ensure adherence to architectural layers.
-- Cover all specified scenarios: happy path, validation failures, edge cases, and error states.
 
-#### Step C: Format, Lint, and Static Analysis
-- Run the repository's linter and formatter (e.g. `make lint`, `npm run lint`).
-- Fix any formatting or lint warnings immediately.
+---
 
-#### Step D: Full Test Suite Verification
-- Run the full test suite (e.g. `make test`, `npm test`).
-- Ensure 100% of tests pass and verify that existing functionality was not broken by regression.
+### Step 5: Autonomous Self-Healing Quality Gate
+- **Static Analysis & Formatting:**
+  - Run the project's formatter and linter (e.g. `npm run lint`, `make lint`, `cargo clippy`).
+  - Automatically fix all lint and formatting errors.
+- **Full Test Suite Execution:**
+  - Run the project's test suite (e.g. `npm test`, `pytest`, `go test ./...`, `make test`).
+- **Bounded Self-Healing Loop:**
+  - If any test fails, do NOT stop to ask the user what to do.
+  - Analyze the error trace, identify the defect, apply the fix, and re-run the tests.
+  - Allow up to **3 automated self-healing iterations**. If still failing after 3 attempts, record the exact failure in the final summary.
 
-### 5. Multi-Dimensional Quality Gate & Self-Review Loop
-- Inspect changes via `git diff` to ensure:
-  - No leftover debugging statements (`console.log`, `System.out.println`, `pdb`).
-  - No secrets, tokens, or environment files are staged.
-  - No unintended changes or file renames occurred.
-- **Invoke the `code-review` skill:** Conduct an automated senior engineering audit assessing:
-  - Architecture & Layering
-  - Scalability & Resource Leaks
-  - Maintainability & Coupling
-  - Security & Input Validation
-  - Test Coverage & Boundary Assertions
-- Review output from `code-review`:
-  - **High / Critical issues:** MUST be fixed immediately.
-  - **Maintainability suggestions:** Refactor where appropriate.
-- Re-run lints and tests after all fixes until zero issues remain.
+---
 
-### 6. Atomic Commits & Pull Request Creation
-- Stage and commit code using conventional commit messages (e.g. `feat(auth): implement reset password flow (Closes #42)`).
-- Push the branch:
+### Step 6: Code Review Audit & Auto-Remediation
+- Inspect all changes via `git diff origin/main...HEAD`.
+- Verify:
+  - No leftover debugging statements (`console.log`, `debugger`, `print`, `pdb`).
+  - No secrets, tokens, credentials, or environment files staged.
+  - No unintended changes or file renames.
+- **Execute Senior Code Review:** Audit the changes against:
+  - Architecture & Layering violations
+  - Scalability bottlenecks & resource leaks
+  - Security, auth gaps, and input validation
+  - Test coverage completeness
+- **Auto-Remediation:** If any **High** or **Critical** issues are found:
+  - Immediately refactor and fix the offending code.
+  - Re-run lints and tests to ensure zero regressions.
+
+---
+
+### Step 7: Atomic Commits & Pull Request Creation
+- Stage and commit code using conventional commit standards:
+  ```bash
+  git commit -m "feat(<scope>): implement issue #<id> - <short description> (Closes #<id>)"
+  ```
+- Push the branch to remote:
   ```bash
   git push -u origin feature/issue-<id>-<short-description>
   ```
-- Generate a structured Pull Request body in a temporary file (e.g. `/tmp/pr_body.md`):
+- Generate a structured Pull Request description:
   ```markdown
   ## Description
   Closes #<id>
@@ -133,28 +160,31 @@ Once the user approves the plan:
 
   ## Quality Checks
   - [x] Lint & formatting passed
-  - [x] All unit & integration tests passed
-  - [x] Engineering code review passed
+  - [x] All unit & integration tests passed (100% green)
+  - [x] Senior engineering code review passed
   ```
-- Create the Pull Request:
+- Submit the Pull Request via GitHub CLI:
   ```bash
   gh pr create --title "<Issue Title>" --body-file /tmp/pr_body.md
   ```
-- Print the created PR URL.
 
-### 7. Final Walkthrough & Gathering Reusable Learnings
-- Create a `walkthrough.md` artifact summarizing:
-  - All changes made and files modified.
-  - Verification evidence (test run results, linter output).
-  - Direct link to the created PR.
-- Conduct a retrospective on the implementation:
-  - Extract reusable engineering guidelines, architectural invariants, framework quirks, test fixture conventions, or database rules learned during this task.
-  - Present the walkthrough and gathered learnings to the user for review.
+---
 
-### 8. Persisting Approved Learnings
-- Once the user approves the gathered learnings:
-  - **Submodule Resolution:** Check if the repository is a multimodule project (e.g., separate `backend/`, `frontend/`, `database/` directories containing their own `.agents/AGENTS.md` or `AGENTS.md` files).
-  - If changes were confined to a specific submodule, update that submodule's `AGENTS.md` (e.g., `backend/.agents/AGENTS.md` or `backend/AGENTS.md`).
-  - If changes were cross-cutting or no submodule `AGENTS.md` exists, update the root `AGENTS.md`.
-  - Append the new learnings cleanly, matching the tone and format of existing entries.
-  - Keep the addition concise and high-signal (respecting the 24KB rule file limit).
+### Step 8: Retrospective & Autonomous Learnings Persistence
+- Extract reusable engineering guidelines, architectural invariants, framework quirks, test fixture conventions, or database rules discovered during implementation.
+- **Autonomous AGENTS.md Update:**
+  - Determine destination:
+    - If changes were localized to a submodule (e.g., `backend/`), update `backend/.agents/AGENTS.md` (or `backend/AGENTS.md`).
+    - If changes were cross-cutting or no submodule file exists, update the root `AGENTS.md`.
+  - Append the high-signal learnings cleanly, matching the tone and conventions of existing entries.
+  - Maintain brevity to respect file size budgets.
+
+---
+
+### Step 9: Final Goal Summary
+Present a concise, structured completion report to the user:
+- **Status:** Completed autonomously.
+- **Pull Request URL:** [Link to PR]
+- **Branch:** `feature/issue-<id>-<short-description>`
+- **Verification Evidence:** Test results, linter status, and code review audit confirmation.
+- **Learnings Persisted:** Brief summary of rules added to `AGENTS.md`.

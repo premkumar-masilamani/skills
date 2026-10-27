@@ -3,13 +3,13 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "You have been assigned GitHub issue #42 'Implement feature: user profile avatar upload'.",
-      "expected_output": "A workflow log proving the goal-oriented, spec-driven workflow was followed.",
+      "prompt": "Run /implement-github-story #42 to implement 'user profile avatar upload'.",
+      "expected_output": "A workflow log proving the autonomous goal-oriented, spec-driven workflow proceeded end-to-end without pausing for approval.",
       "files": [],
       "assertions": [
         {
-          "name": "Mentions Goal Mindset",
-          "description": "The log explicitly states that it is acting as a goal."
+          "name": "Mandatory Issue ID Validated",
+          "description": "The workflow extracts and validates issue #42 from the command."
         },
         {
           "name": "Pre-flight Rule Ingestion",
@@ -20,20 +20,32 @@
           "description": "The log explicitly states it spawned or delegated to a research subagent."
         },
         {
-          "name": "Presents Implementation Plan",
-          "description": "The log shows it presented an implementation plan artifact with a spec traceability matrix and received user approval before code changes."
+          "name": "Generates Implementation Plan Without Blocking",
+          "description": "The log shows it generated an implementation plan artifact with a spec traceability matrix and autonomously self-validated it without blocking for user approval."
         },
         {
-          "name": "Runs Lint and Tests",
-          "description": "The log explicitly states it followed TDD, running format, lint, and tests."
+          "name": "Runs Lint and Tests with Self-Healing",
+          "description": "The log explicitly states it followed TDD, running format, lint, and tests, self-healing failures."
         },
         {
-          "name": "Executes Code Review Quality Gate",
-          "description": "The workflow invokes the code-review skill to audit code quality before pushing the PR."
+          "name": "Executes Code Review Quality Gate & Remediation",
+          "description": "The workflow invokes the code-review skill to audit code quality and auto-remediates high/critical issues before pushing the PR."
         },
         {
-          "name": "Persists Learnings to AGENTS.md",
-          "description": "The workflow gathers approved learnings and updates the relevant submodule or root AGENTS.md."
+          "name": "Autonomously Persists Learnings to AGENTS.md",
+          "description": "The workflow gathers learnings and directly updates the relevant submodule or root AGENTS.md without halting for confirmation."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run /implement-github-story",
+      "expected_output": "The agent aborts immediately stating an issue number is mandatory.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Aborts on Missing Story Number",
+          "description": "The agent refuses to proceed and prompts for an issue number without listing issues."
         }
       ]
     }
