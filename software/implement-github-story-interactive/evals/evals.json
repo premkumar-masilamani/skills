@@ -1,0 +1,37 @@
+{
+  "skill_name": "implement-github-story-interactive",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You have been assigned GitHub issue #42 'Implement feature: user profile avatar upload'.",
+      "expected_output": "A workflow log proving the interactive, spec-driven workflow was followed with user approval checkpoints.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "Pre-flight Rule Ingestion",
+          "description": "The workflow checks and respects workspace rules and submodule AGENTS.md guidelines before implementation."
+        },
+        {
+          "name": "Spawns Research Subagent",
+          "description": "The log explicitly states it spawned or delegated to a research subagent."
+        },
+        {
+          "name": "Presents Implementation Plan & Requests Approval",
+          "description": "The log shows it presented an implementation plan artifact with a spec traceability matrix and awaited user approval before code changes."
+        },
+        {
+          "name": "Runs Lint and Tests",
+          "description": "The log explicitly states it followed TDD, running format, lint, and tests."
+        },
+        {
+          "name": "Executes Code Review Quality Gate",
+          "description": "The workflow invokes the code-review skill to audit code quality before pushing the PR."
+        },
+        {
+          "name": "Persists Learnings to AGENTS.md Upon User Approval",
+          "description": "The workflow gathers learnings and presents them for user approval before updating the relevant submodule or root AGENTS.md."
+        }
+      ]
+    }
+  ]
+}

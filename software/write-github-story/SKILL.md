@@ -1,11 +1,11 @@
 ---
 name: write-github-story
-description: Interview the user to refine a feature idea, probe technical layers, review the codebase, and create a comprehensive, AI-ready GitHub issue specification. Make sure to use this skill whenever the user mentions writing a story, creating a GitHub issue, planning a feature, writing a spec, spec-driven development (SDD), or taking a feature from idea to ticket.
+description: Interview the user to refine a feature idea, probe technical layers, ground requirements in the codebase, and create a comprehensive, AI-ready GitHub issue specification. Make sure to use this skill whenever the user mentions writing a story, creating a GitHub issue, planning a feature, writing a spec, spec-driven development (SDD), or taking a feature from idea to ticket.
 ---
 
-# Write Story Skill
+# Write Story Skill (AI Specification Authoring)
 
-This skill guides the agent in conducting a structured, contract-driven requirement gathering process (Spec-Driven Development / SDD), grounding requirements in the codebase architecture, and automatically generating and publishing a comprehensive, AI-ready specification as a GitHub issue.
+This skill guides the agent in conducting a structured, contract-driven requirement gathering process (Spec-Driven Development / SDD), grounding specifications in existing codebase architecture, and automatically generating and publishing an AI-ready GitHub issue.
 
 The goal is to produce specifications that downstream engineering agents or developers can implement deterministically without ambiguities, hallucinations, or scope creep.
 
@@ -15,37 +15,45 @@ The goal is to produce specifications that downstream engineering agents or deve
 
 ```mermaid
 flowchart TD
-    A[User Feature Idea] --> B[Step 1: Codebase Grounding]
-    B --> C[Step 2: Relentless Interview & Probing]
-    C --> D[Step 3: Draft AI Spec Artifact]
-    D --> E{User Approval?}
-    E -- Needs Changes --> C
-    E -- Approved --> F[Step 4: Publish GitHub Issue]
+    A[User Feature Request] --> B[Step 1: Codebase Grounding]
+    B --> C[Step 2: Batched Interactive Probing via ask_question]
+    C --> D[Step 3: Draft AI Spec Artifact with Visual Flows]
+    D --> E[Step 4: Architectural Feasibility Pre-Check]
+    E --> F{User Approval Gate}
+    F -- Needs Revision --> C
+    F -- Approved --> G[Step 5: Publish GitHub Issue with Auto-Labels]
 ```
+
+---
 
 ### 1. Codebase Grounding & Architecture Context
 Before asking blind questions, inspect the repository to ground the feature in reality:
-- Check root and submodule architecture (e.g. `backend/`, `frontend/`, `database/`, and their `.agents/AGENTS.md` guidelines).
-- Identify existing models, API endpoints, state management conventions, and UI component libraries that can be reused.
-- Use your findings to ask informed, high-context technical questions rather than generic ones.
+- Check root and submodule architecture guidelines (`AGENTS.md`, `backend/.agents/AGENTS.md`, etc.).
+- Identify existing data models, API endpoints, state management conventions, and UI component libraries that should be extended or reused.
+- Use your findings to formulate informed, high-context technical options rather than asking generic questions.
 
-### 2. Relentless Requirement Gathering (The Interview Phase)
-- Ask questions **one at a time** to walk down the decision tree and resolve ambiguities.
-- Whenever trade-offs or technical choices arise, use the `ask_question` tool to provide structured options with clear recommendations.
-- **Define Boundaries Early:** Explicitly establish **Goals** and **Non-Goals (Out of Scope)** to prevent downstream scope creep.
-- Proactively probe across all architectural layers:
-  - **User Journeys & Personas:** Who is the actor? What is the primary happy path? What are the edge cases or failure modes?
-  - **Frontend UI/UX & State Machine:** Views, components, responsive layout, accessibility, and explicit states: *idle*, *loading*, *empty*, *active*, *success*, and *error*.
-  - **Backend / APIs & Contract Definition:** Endpoints, HTTP methods, headers, request/response payload schemas (field types, nullability), validation constraints, and error status codes.
-  - **Database Schema & Migrations:** New tables, columns, indexes, foreign key relationships, data backfill/seeding requirements, and migration reversibility. *(Always respect repo-specific migration rules!)*
-  - **Security, Auth & Permissions:** Authentication mechanisms, RBAC/authorization rules, CSRF/CORS, input sanitization, sensitive data handling, and OWASP defenses.
-  - **Non-Functional Requirements (NFRs):** Performance/latency expectations, pagination, rate-limiting, caching strategy, timeouts, and resilience.
-  - **Observability:** Structured logging, metrics, audit trails, and error tracking.
+---
+
+### 2. Batched Interactive Probing (The Interview Phase)
+Do not overwhelm the user with 15 single-turn questions. Group the interview into **2-3 logical batches** and use the `ask_question` tool with structured options and recommended defaults:
+
+#### Batch 1: Scope, Boundaries & User Experience
+- **Goals & Explicit Non-Goals:** Pin down what is in-scope vs. what is explicitly deferred to prevent scope creep.
+- **User Journey & Personas:** Who is the actor? What is the happy path and primary edge cases?
+- **UI States & Component Hierarchy:** Determine required states (*idle*, *loading*, *empty*, *active*, *success*, *error*).
+
+#### Batch 2: Technical Contracts, Data & Security
+- **API Contracts:** Request/response payloads, endpoints, HTTP verbs, status codes, and validation rules.
+- **Database Schema & Migrations:** New columns, relationships, indexes, and repo migration constraints.
+- **Security & Authorization:** Required roles, auth guards, input sanitization, and OWASP defenses.
+- **Non-Functional Requirements (NFRs):** Latency budgets, pagination, rate limits, and observability logging.
+
+---
 
 ### 3. Draft the AI Specification Artifact
-Once requirements are aligned, compile the specification into an interactive markdown artifact in the artifact directory (`write_to_file` with `ArtifactMetadata` and `RequestFeedback: true`).
+Compile the aligned requirements into an interactive markdown artifact in the conversation artifact directory (`write_file` with `ArtifactMetadata` and `RequestFeedback: true`).
 
-The specification **MUST** follow this comprehensive template:
+The specification **MUST** follow this structured template:
 
 ```markdown
 # [Feature] <Feature Name>
@@ -57,27 +65,30 @@ The specification **MUST** follow this comprehensive template:
 
 ## 2. Goals & Non-Goals
 ### Goals
-- [Concrete, measurable in-scope objective 1]
-- [Concrete, measurable in-scope objective 2]
+- [Measurable in-scope objective 1]
+- [Measurable in-scope objective 2]
 
 ### Non-Goals (Out of Scope)
 - [Explicit boundary / what will NOT be built in this story]
 - [Deferred future enhancement]
 
-## 3. User Journey & UI State Machine
-- **Primary Flow:** [Step-by-step user interaction sequence]
-- **UI States:**
-  - *Idle / Default:* [Description]
-  - *Loading / Submitting:* [Visual indicator / disabled states]
-  - *Empty State:* [Visual representation when no data exists]
-  - *Success State:* [Visual confirmation / redirect]
-  - *Error State:* [Inline validation / toast / banner error details]
+## 3. Visual State Machine & User Journey
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Loading: User Triggers Action
+    Loading --> Success: 200 OK / Data Validated
+    Loading --> Error: Validation / Network Error
+    Loading --> Empty: Query Yields 0 Results
+    Error --> Idle: Retry / Reset
+    Success --> [*]
+```
 
 ## 4. Technical Specification
-### Frontend
-- **Components:** [New or modified components, props, file paths]
-- **State Management:** [Local state, global store, or server-cache changes]
-- **Styling & Responsiveness:** [Tailwind / CSS rules, mobile/desktop breakpoints]
+### Frontend & UI Architecture
+- **Target Components:** [File paths, components to create/modify]
+- **State Management:** [Store changes, local hooks, query caching]
+- **UI States Handled:** Idle, Loading, Empty, Success, Inline Error
 
 ### Backend & API Contracts
 - **Endpoints:**
@@ -97,49 +108,48 @@ The specification **MUST** follow this comprehensive template:
       }
       ```
     - **Error Responses:** `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `422 Unprocessable`
-- **Business Logic & Validation:** [Key algorithms, validation rules, rate limiting]
+- **Validation Rules:** [Field constraints, regex patterns, size limits]
 
 ### Database & Migrations
-- **Schema Changes:** [Tables, columns, types, nullability, constraints, indexes]
-- **Data Migrations / Backfills:** [Required one-time scripts or seeding]
-- **Migration Strategy:** [Reversibility / rollback safety]
+- **Schema Changes:** [Tables, columns, types, foreign keys, indexes]
+- **Migration Strategy:** [Reversibility, zero-downtime safety, obeying repo AGENTS.md rules]
 
-### Security & Compliance
-- **Authentication & Authorization:** [Required roles / scopes / RBAC]
-- **Data Protection:** [Sanitization, encryption, PII handling]
+### Security & Non-Functional Requirements
+- **Auth & Access Control:** [Required roles / scopes / ACLs]
+- **Performance & Caching:** [Query indexing, cache-control, pagination limits]
+- **Observability:** [Structured log events, error reporting tags]
 
-### Non-Functional Requirements (NFRs)
-- **Performance & Caching:** [Query performance, caching layer, pagination limits]
-- **Resilience:** [Timeouts, retry policies, fallback behavior]
-- **Observability:** [Structured log events, key metrics, alert triggers]
-
-## 5. Verifiable Acceptance Criteria
+## 5. Verifiable Acceptance Criteria (Given / When / Then)
 ### Positive Scenarios (Happy Path)
 - [ ] **Given** [pre-condition], **When** [action taken], **Then** [expected testable outcome].
 
-### Negative & Edge Cases
+### Edge Cases & Negative Scenarios
 - [ ] **Given** [invalid input / missing data], **When** [action submitted], **Then** [validation error returned].
-- [ ] **Given** [unauthenticated / unauthorized user], **When** [resource accessed], **Then** [401/403 returned].
-- [ ] **Given** [network failure / backend timeout], **When** [action taken], **Then** [graceful degradation].
+- [ ] **Given** [unauthorized user], **When** [resource accessed], **Then** [401/403 returned].
+- [ ] **Given** [downstream timeout], **When** [action taken], **Then** [graceful degradation].
 
 ## 6. Definition of Done (DoD)
-- [ ] Unit tests written and passing with expected coverage.
-- [ ] Integration / API contract tests passing.
-- [ ] Linter and static analysis checks passing without warnings.
-- [ ] Code reviewed against architectural, security, and scalability standards.
-- [ ] No regression in existing test suites.
+- [ ] Unit & integration tests pass with 100% green status.
+- [ ] Static analysis and linter pass with zero warnings.
+- [ ] Senior code review completed with 0 High/Critical findings.
+- [ ] Pull Request opened and linked.
 ```
 
-### 4. Review & Approval Gate
-- Present the generated artifact to the user.
-- Highlight key decisions, trade-offs, or open questions.
-- Await user approval. If the user suggests modifications, update the artifact and confirm before proceeding.
+---
 
-### 5. GitHub Issue Creation
-- Once the user explicitly approves the specification, save the spec to a temporary file (e.g. `/tmp/issue_spec.md`).
-- Create the issue using the GitHub CLI (`gh`):
+### 4. Architectural Feasibility Pre-Check
+Before asking the user to approve:
+- Verify that referenced files, modules, and import paths exist or match the project layout.
+- Check that proposed database schema changes do not violate existing migrations or conventions.
+- Flag any technical trade-offs directly in the summary.
+
+---
+
+### 5. Review, Approval & GitHub Issue Creation
+- Present the spec artifact to the user and request approval.
+- Once approved, determine appropriate GitHub labels (e.g. `type:feature`, `area:backend`, `area:frontend`, `status:ready`).
+- Save the spec to a temporary file (`/tmp/issue_spec.md`) and create the issue:
   ```bash
-  gh issue create --title "[Feature] <Short Description>" --body-file /tmp/issue_spec.md
+  gh issue create --title "[Feature] <Short Description>" --body-file /tmp/issue_spec.md --label "type:feature"
   ```
-- Print the created issue URL and issue number.
-- **Graceful Fallbacks:** If `gh` is unauthenticated or encounters environment restrictions, provide the full markdown text for manual creation and inform the user.
+- Output the generated Issue Number and GitHub URL.
