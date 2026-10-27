@@ -10,12 +10,6 @@ mkdir -p "$AGENTS_DEST"
 mkdir -p "$CLAUDE_DEST"
 mkdir -p "$GEMINI_DEST"
 
-# Clean up decommissioned skills
-REMOVED_SKILLS=("skill-creator" "ocr-and-merge")
-for old in "${REMOVED_SKILLS[@]}"; do
-  rm -rf "$AGENTS_DEST/$old" "$CLAUDE_DEST/$old" "$GEMINI_DEST/$old"
-done
-
 find "$REPO" -name SKILL.md | while read -r skill_md; do
   src="$(dirname "$skill_md")"
   name="$(basename "$src")"
