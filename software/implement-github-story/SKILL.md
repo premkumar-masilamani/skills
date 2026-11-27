@@ -133,14 +133,16 @@ flowchart TD
   - No leftover debugging statements (`console.log`, `debugger`, `print`, `pdb`).
   - No secrets, tokens, credentials, or environment files staged.
   - No unintended changes or file renames.
-- **Execute Senior Code Review:** Audit the changes against:
-  - Architecture & layering boundaries, and dead/test-only code.
+- **Invoke the `code-review` skill:** Conduct a senior engineering audit of the diff assessing:
+  - Architecture, layering boundaries, and dead/test-only code.
   - Scalability bottlenecks, concurrency, and resource leaks.
+  - Maintainability & coupling.
   - Security, auth gaps, and input validation.
   - Spec traceability completeness and edge-case test coverage.
-- **Auto-Remediation:** If any **High** or **Critical** issues are found:
-  - Immediately refactor and fix the offending code.
-  - Re-run lints and tests to ensure zero regressions.
+- **Auto-Remediation:** Review output from `code-review` and fix without pausing:
+  - **High / Critical issues:** MUST be fixed immediately.
+  - **Maintainability suggestions:** Refactor where appropriate.
+  - Re-run lints, static analysis, and tests after all fixes until zero issues remain.
 
 ---
 
